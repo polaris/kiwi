@@ -13,7 +13,6 @@
 -endif.
 
 init() ->
-  ok = mnesia:start(),
   case mnesia:create_table(key_to_value, [{attributes, record_info(fields, key_to_value)}]) of
     {atomic, ok} ->
       ok;

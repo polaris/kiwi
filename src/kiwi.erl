@@ -4,7 +4,9 @@
          stop/0]).
 
 start() ->
+  ok = mnesia:start(),
   application:start(?MODULE).
 
 stop() ->
-  applicatio:stop(?MODULE).
+  applicatio:stop(?MODULE),
+  mnesia:stop().
