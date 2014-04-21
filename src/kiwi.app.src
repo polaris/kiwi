@@ -1,0 +1,12 @@
+{application, kiwi,
+ [
+  {description, ""},
+  {vsn, "1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {mod, { kiwi_app, []}},
+  {env, []}
+ ]}.
