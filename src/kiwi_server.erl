@@ -70,13 +70,15 @@ code_change(_OldVsn, State, _Extra) ->
 -ifdef(TEST).
 
 db_test() ->
+  mnesia:start(),
   {Result, _Pid} = kiwi_server:start_link(),
   ?assertEqual(ok, Result),
   ?assertEqual({error, not_found}, kiwi_server:lookup("foo")),
   ?assertEqual(ok, kiwi_server:insert("foo", "bar")),
   ?assertEqual({ok, "bar"}, kiwi_server:lookup("foo")),
   ?assertEqual(ok, kiwi_server:delete("foo")),
-  ?assertEqual({error, not_found}, kiwi_server:lookup("foo")).
+  ?assertEqual({error, not_found}, kiwi_server:lookup("foo")),
+  mnesia:stop().
 
 -endif.
 

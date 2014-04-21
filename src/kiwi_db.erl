@@ -1,7 +1,6 @@
 -module(kiwi_db).
 
 -export([init/0,
-         deinit/0,
          insert/2,
          lookup/1,
          delete/1]).
@@ -22,11 +21,6 @@ init() ->
       {error, Reason}
   end.
 
-deinit() ->
-  stopped = mnesia:stop(),
-  ok.
-
-
 insert(Key, Value) ->
   mnesia:dirty_write(#key_to_value{key=Key, value=Value}).
 
@@ -44,12 +38,13 @@ delete(Key) ->
 -ifdef(TEST).
 
 db_test() ->
+  mnesia:start(),
   ?assertEqual(ok, kiwi_db:init()),
   ?assertEqual({error, not_found}, kiwi_db:lookup("foo")),
   ?assertEqual(ok, kiwi_db:insert("foo", "bar")),
   ?assertEqual({ok, "bar"}, kiwi_db:lookup("foo")),
   ?assertEqual(ok, kiwi_db:delete("foo")),
   ?assertEqual({error, not_found}, kiwi_db:lookup("foo")),
-  ?assertEqual(ok, kiwi_db:deinit()).
+  mnesia:stop().
 
 -endif.
