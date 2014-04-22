@@ -5,6 +5,10 @@
 
 start() ->
   ok = mnesia:start(),
+  ok = application:start(ranch),
+  ok = application:start(cowlib),
+  ok = application:start(crypto),
+  ok = application:start(cowboy),
   application:start(?MODULE).
 
 stop() ->
