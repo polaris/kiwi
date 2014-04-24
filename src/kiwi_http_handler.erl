@@ -1,17 +1,30 @@
 -module(kiwi_http_handler).
 
--behaviour(cowboy_http_handler).
-
 -export([init/3]).
--export([handle/2]).
--export([terminate/3]).
- 
-init(_Type, Req, _Opts) ->
-  {ok, Req, undefined_state}.
- 
-handle(Req, State) ->
-  {ok, Req2} = cowboy_req:reply(200, [{<<"content-type">>, <<"text/plain">>}], <<"Hello World!">>, Req),
-  {ok, Req2, State}.
- 
-terminate(_Reason, _Req, _State) ->
-  ok.
+-export([content_types_provided/2]).
+-export([value_to_text/2]).
+% -export([hello_to_json/2]).
+
+init(_Transport, _Req, []) ->
+  {upgrade, protocol, cowboy_rest}.
+
+content_types_provided(Req, State) ->
+  {[
+    {<<"text/plain">>, value_to_text},
+    {<<"text/html">>, value_to_text}
+    % {<<"application/json">>, hello_to_json}
+  ], Req, State}.
+
+value_to_text(Req, State) ->
+  {Body, Req2} = get_value(Req),
+  {Body, Req2, State}.
+
+% hello_to_json(Req, State) ->
+%   Body = <<"{\"rest\": \"Hello World!\"}">>,
+%   {Body, Req, State}.
+
+get_value(Req) ->
+  {Value, Req2} = cowboy_req:binding(key, Req),
+  Key = binary_to_list(Value),
+  {ok, Val} = kiwi_server:lookup(Key),
+  {Val, Req2}.
