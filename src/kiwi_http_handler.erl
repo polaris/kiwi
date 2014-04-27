@@ -1,18 +1,32 @@
 -module(kiwi_http_handler).
 
 -export([init/3]).
+-export([allowed_methods/2]).
 -export([content_types_provided/2]).
+-export([content_types_accepted/2]).
 -export([value_to_text/2]).
 -export([value_to_json/2]).
+-export([from_json/2]).
 
 init(_Transport, _Req, []) ->
   {upgrade, protocol, cowboy_rest}.
+
+allowed_methods(Req, State) -> 
+  AllowedMethods = [
+    <<"GET">>, <<"PUT">>
+  ],
+  {AllowedMethods, Req, State}.
 
 content_types_provided(Req, State) ->
   {[
     {<<"text/plain">>, value_to_text},
     {<<"text/html">>, value_to_text},
     {<<"application/json">>, value_to_json}
+  ], Req, State}.
+
+content_types_accepted(Req, State) ->
+  {[
+    {{<<"application">>, <<"json">>, '*'}, from_json}
   ], Req, State}.
 
 value_to_text(Req, State) ->
@@ -39,6 +53,13 @@ value_to_json(Req, State) ->
                                     Req2),
       {halt, Req3, State}
   end.
+
+from_json(Req, State) ->
+  {Value, Req2} = cowboy_req:binding(key, Req),
+  Key = binary_to_list(Value),
+  {ok, [{Val, true}], Req3} = cowboy_req:body_qs(Req2),
+  kiwi_server:insert(Key, binary_to_list(Val)),
+  {true, Req3, State}.
 
 get_value(Req) ->
   {Value, Req2} = cowboy_req:binding(key, Req),
