@@ -55,18 +55,18 @@ to_json(Req, State) ->
   end.
 
 from_json(Req, State) ->
-  {Value, Req2} = cowboy_req:binding(key, Req),
-  Key = binary_to_list(Value),
-  {ok, [{Val, true}], Req3} = cowboy_req:body_qs(Req2),
-  kiwi_server:insert(Key, binary_to_list(Val)),
+  {KeyBin, Req2} = cowboy_req:binding(key, Req),
+  Key = binary_to_list(KeyBin),
+  {ok, [{Value, true}], Req3} = cowboy_req:body_qs(Req2),
+  kiwi_server:insert(Key, binary_to_list(Value)),
   {true, Req3, State}.
 
 get_value(Req) ->
-  {Value, Req2} = cowboy_req:binding(key, Req),
-  Key = binary_to_list(Value),
+  {KeyBin, Req2} = cowboy_req:binding(key, Req),
+  Key = binary_to_list(KeyBin),
   case kiwi_server:lookup(Key) of
-    {ok, Val} ->
-      {ok, Key, Val, Req2};
+    {ok, Value} ->
+      {ok, Key, Value, Req2};
     {error, not_found} ->
       {error, not_found, Req2}
   end.
