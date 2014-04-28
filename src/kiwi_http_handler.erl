@@ -34,10 +34,7 @@ to_text(Req, State) ->
     {ok, _Key, Body, Req2} ->
       {Body, Req2, State};
     {error, not_found, Req2} ->
-      {ok, Req3} = cowboy_req:reply(404,
-                                    [{<<"content-type">>, <<"text/html">>}],
-                                    <<"not found">>,
-                                    Req2),
+      {ok, Req3} = not_found(<<"not found">>, <<"text/plain">>, Req2),
       {halt, Req3, State}
   end.
 
@@ -47,12 +44,12 @@ to_json(Req, State) ->
       Body = jiffy:encode({[{list_to_binary(Key), list_to_binary(Value)}]}),
       {Body, Req2, State};
     {error, not_found, Req2} ->
-      {ok, Req3} = cowboy_req:reply(404,
-                                    [{<<"content-type">>, <<"application/json">>}],
-                                    <<"{\"error\":\"not found\"}">>,
-                                    Req2),
+      {ok, Req3} = not_found(<<"{\"error\":\"not found\"}">>, <<"application/json">>, Req2),
       {halt, Req3, State}
   end.
+
+not_found(Body, ContentType, Req) ->
+  cowboy_req:reply(404, [{<<"content-type">>, ContentType}], Body, Req).
 
 from_json(Req, State) ->
   {KeyBin, Req2} = cowboy_req:binding(key, Req),
