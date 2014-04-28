@@ -7,13 +7,14 @@
 -export([to_text/2]).
 -export([to_json/2]).
 -export([from_json/2]).
+-export([delete_resource/2]).
 
 init(_Transport, _Req, []) ->
   {upgrade, protocol, cowboy_rest}.
 
 allowed_methods(Req, State) -> 
   AllowedMethods = [
-    <<"GET">>, <<"PUT">>
+    <<"GET">>, <<"PUT">>, <<"DELETE">>
   ],
   {AllowedMethods, Req, State}.
 
@@ -67,3 +68,9 @@ get_value(Req) ->
     {error, not_found} ->
       {error, not_found, Req2}
   end.
+
+delete_resource(Req, State) ->
+  {KeyBin, Req2} = cowboy_req:binding(key, Req),
+  Key = binary_to_list(KeyBin),
+  kiwi_server:delete(Key),
+  {true, Req2, State}.
