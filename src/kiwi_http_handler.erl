@@ -4,8 +4,8 @@
 -export([allowed_methods/2]).
 -export([content_types_provided/2]).
 -export([content_types_accepted/2]).
--export([value_to_text/2]).
--export([value_to_json/2]).
+-export([to_text/2]).
+-export([to_json/2]).
 -export([from_json/2]).
 
 init(_Transport, _Req, []) ->
@@ -19,9 +19,9 @@ allowed_methods(Req, State) ->
 
 content_types_provided(Req, State) ->
   {[
-    {<<"text/plain">>, value_to_text},
-    {<<"text/html">>, value_to_text},
-    {<<"application/json">>, value_to_json}
+    {<<"text/plain">>, to_text},
+    {<<"text/html">>, to_text},
+    {<<"application/json">>, to_json}
   ], Req, State}.
 
 content_types_accepted(Req, State) ->
@@ -29,7 +29,7 @@ content_types_accepted(Req, State) ->
     {{<<"application">>, <<"json">>, '*'}, from_json}
   ], Req, State}.
 
-value_to_text(Req, State) ->
+to_text(Req, State) ->
   case get_value(Req) of
     {ok, _Key, Body, Req2} ->
       {Body, Req2, State};
@@ -41,7 +41,7 @@ value_to_text(Req, State) ->
       {halt, Req3, State}
   end.
 
-value_to_json(Req, State) ->
+to_json(Req, State) ->
   case get_value(Req) of
     {ok, Key, Value, Req2} ->
       Body = jiffy:encode({[{list_to_binary(Key), list_to_binary(Value)}]}),
